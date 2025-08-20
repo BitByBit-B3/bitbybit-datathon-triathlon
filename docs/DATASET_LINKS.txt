@@ -1,0 +1,35 @@
+# Tech-Triathlon 2025 Datathon - Dataset Links
+
+## Datasets Folder
+[Add the competition datasets folder URL here]
+
+## Submission Form
+[Add the competition submission form URL here]
+
+## Required Files
+
+Place these files in `code/data/raw/`:
+
+### Training Data:
+- bookings_train.csv
+- tasks.csv
+- staffing_train.csv
+
+### Test Data:
+- task1_test_inputs.csv (columns: row_id, date, time, task_id)
+- task2_test_inputs.csv (columns: row_id, date, section_id)
+
+## Expected Outputs
+
+The pipeline will generate these files at the project root:
+- task1_predictions.csv (columns: row_id, prediction)
+- task2_predictions.csv (columns: row_id, prediction)
+
+## Notes
+
+- All CSV files should use UTF-8 encoding
+- Date format should be YYYY-MM-DD
+- Time format should be HH:MM (24-hour)
+- Predictions must be integers ≥ 0
+- Task 1 predictions: processing time in minutes
+- Task 2 predictions: number of employees needed
