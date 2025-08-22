@@ -105,10 +105,10 @@ def main() -> None:
         )
 
         # Create output DataFrame
-        output_df = pd.DataFrame({"row_id": test_inputs_df["row_id"], "prediction": predictions})
+        output_df = pd.DataFrame({"row_id": test_inputs_df["row_id"], "true_processing_time_minutes": predictions})
 
         # Ensure predictions are integers
-        output_df["prediction"] = output_df["prediction"].astype(int)
+        output_df["true_processing_time_minutes"] = output_df["true_processing_time_minutes"].astype(int)
 
         # Validate output format
         if len(output_df) != len(test_inputs_df):
@@ -124,7 +124,7 @@ def main() -> None:
         write_csv_safe(output_df, TASK1_PREDICTIONS_PATH)
 
         # Log prediction statistics
-        pred_stats = output_df["prediction"].describe()
+        pred_stats = output_df["true_processing_time_minutes"].describe()
         logger.info("Prediction statistics:")
         logger.info(f"  Count: {pred_stats['count']}")
         logger.info(f"  Mean: {pred_stats['mean']:.1f}")
@@ -150,7 +150,7 @@ def main() -> None:
             # Use a reasonable default (30 minutes processing time)
             fallback_predictions = np.full(len(test_inputs_df), 30)
 
-            output_df = pd.DataFrame({"row_id": test_inputs_df["row_id"], "prediction": fallback_predictions})
+            output_df = pd.DataFrame({"row_id": test_inputs_df["row_id"], "true_processing_time_minutes": fallback_predictions})
 
             write_csv_safe(output_df, TASK1_PREDICTIONS_PATH)
             logger.info(f"Saved fallback predictions to: {TASK1_PREDICTIONS_PATH}")
@@ -176,7 +176,7 @@ def validate_predictions() -> bool | None:
         pred_df = read_csv_safe(TASK1_PREDICTIONS_PATH)
 
         # Check format
-        if list(pred_df.columns) != ["row_id", "prediction"]:
+        if list(pred_df.columns) != ["row_id", "true_processing_time_minutes"]:
             msg = f"Invalid columns: {list(pred_df.columns)}"
             raise ValueError(msg)
 
@@ -186,16 +186,16 @@ def validate_predictions() -> bool | None:
             raise ValueError(msg)
 
         # Check data types
-        if pred_df["prediction"].dtype.kind not in "iu":
-            msg = f"Predictions not integer type: {pred_df['prediction'].dtype}"
+        if pred_df["true_processing_time_minutes"].dtype.kind not in "iu":
+            msg = f"Predictions not integer type: {pred_df['true_processing_time_minutes'].dtype}"
             raise ValueError(msg)
 
         # Check value ranges
-        if (pred_df["prediction"] < 0).any():
+        if (pred_df["true_processing_time_minutes"] < 0).any():
             msg = "Predictions contain negative values"
             raise ValueError(msg)
 
-        if (pred_df["prediction"] > 480).any():
+        if (pred_df["true_processing_time_minutes"] > 480).any():
             logger.warning("Some predictions exceed 8 hours")
 
         logger.info("✓ Predictions validation passed")

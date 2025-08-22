@@ -105,10 +105,10 @@ def main() -> None:
         )
 
         # Create output DataFrame
-        output_df = pd.DataFrame({"row_id": test_inputs_df["row_id"], "prediction": predictions})
+        output_df = pd.DataFrame({"row_id": test_inputs_df["row_id"], "true_required_employees": predictions})
 
         # Ensure predictions are integers
-        output_df["prediction"] = output_df["prediction"].astype(int)
+        output_df["true_required_employees"] = output_df["true_required_employees"].astype(int)
 
         # Validate output format
         if len(output_df) != len(test_inputs_df):
@@ -124,7 +124,7 @@ def main() -> None:
         write_csv_safe(output_df, TASK2_PREDICTIONS_PATH)
 
         # Log prediction statistics
-        pred_stats = output_df["prediction"].describe()
+        pred_stats = output_df["true_required_employees"].describe()
         logger.info("Prediction statistics:")
         logger.info(f"  Count: {pred_stats['count']}")
         logger.info(f"  Mean: {pred_stats['mean']:.1f}")
@@ -138,7 +138,7 @@ def main() -> None:
         # Log section-wise predictions if available
         if "section_id" in test_inputs_df.columns:
             section_summary = test_inputs_df.copy()
-            section_summary["prediction"] = output_df["prediction"]
+            section_summary["prediction"] = output_df["true_required_employees"]
             section_stats = section_summary.groupby("section_id")["prediction"].agg(["count", "mean", "min", "max"])
 
             logger.info("Section-wise prediction summary:")
@@ -176,7 +176,7 @@ def main() -> None:
                 # Use fixed default if no section info
                 fallback_predictions = [3] * len(test_inputs_df)
 
-            output_df = pd.DataFrame({"row_id": test_inputs_df["row_id"], "prediction": fallback_predictions})
+            output_df = pd.DataFrame({"row_id": test_inputs_df["row_id"], "true_required_employees": fallback_predictions})
 
             write_csv_safe(output_df, TASK2_PREDICTIONS_PATH)
             logger.info(f"Saved fallback predictions to: {TASK2_PREDICTIONS_PATH}")
@@ -202,7 +202,7 @@ def validate_predictions() -> bool | None:
         pred_df = read_csv_safe(TASK2_PREDICTIONS_PATH)
 
         # Check format
-        if list(pred_df.columns) != ["row_id", "prediction"]:
+        if list(pred_df.columns) != ["row_id", "true_required_employees"]:
             msg = f"Invalid columns: {list(pred_df.columns)}"
             raise ValueError(msg)
 
@@ -212,16 +212,16 @@ def validate_predictions() -> bool | None:
             raise ValueError(msg)
 
         # Check data types
-        if pred_df["prediction"].dtype.kind not in "iu":
-            msg = f"Predictions not integer type: {pred_df['prediction'].dtype}"
+        if pred_df["true_required_employees"].dtype.kind not in "iu":
+            msg = f"Predictions not integer type: {pred_df['true_required_employees'].dtype}"
             raise ValueError(msg)
 
         # Check value ranges
-        if (pred_df["prediction"] < 1).any():
+        if (pred_df["true_required_employees"] < 1).any():
             msg = "Predictions contain values less than 1 employee"
             raise ValueError(msg)
 
-        if (pred_df["prediction"] > 100).any():
+        if (pred_df["true_required_employees"] > 100).any():
             logger.warning("Some predictions exceed 100 employees (may be unrealistic)")
 
         logger.info("✓ Predictions validation passed")

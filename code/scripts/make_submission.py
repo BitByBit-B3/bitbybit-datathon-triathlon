@@ -30,8 +30,14 @@ def validate_predictions(task_name: str, predictions_path: str, test_inputs_path
     pred_df = read_csv_safe(predictions_path)
     test_df = read_csv_safe(test_inputs_path)
 
-    # Validate columns
-    expected_cols = ["row_id", "prediction"]
+    # Validate columns based on task
+    if "Task1" in task_name:
+        expected_cols = ["row_id", "true_processing_time_minutes"]
+    elif "Task2" in task_name:
+        expected_cols = ["row_id", "true_required_employees"]
+    else:
+        expected_cols = ["row_id", "prediction"]  # fallback
+        
     if list(pred_df.columns) != expected_cols:
         msg = f"{task_name}: Expected columns {expected_cols}, got {list(pred_df.columns)}"
         raise ValueError(msg)
@@ -47,11 +53,12 @@ def validate_predictions(task_name: str, predictions_path: str, test_inputs_path
         raise ValueError(msg)
 
     # Validate prediction types and values
-    if pred_df["prediction"].dtype.kind not in "iu":
+    pred_col = expected_cols[1]  # The prediction column name
+    if pred_df[pred_col].dtype.kind not in "iu":
         logger.warning(f"{task_name}: Converting predictions to integer")
-        pred_df["prediction"] = pred_df["prediction"].astype(int)
+        pred_df[pred_col] = pred_df[pred_col].astype(int)
 
-    if (pred_df["prediction"] < 0).any():
+    if (pred_df[pred_col] < 0).any():
         msg = f"{task_name}: Contains negative predictions"
         raise ValueError(msg)
 
