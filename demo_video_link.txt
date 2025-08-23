@@ -1,10 +1,5 @@
 # Demo Video Link
-
-https://example.com/demo-video
-
-# Alternative links:
-# YouTube: https://youtu.be/PLACEHOLDER
-# Drive: https://drive.google.com/file/d/PLACEHOLDER/view
+# YouTube: https://www.youtube.com/watch?v=Nxj2-6ZDhK8
 
 # Video includes:
 # - Quick overview of the solution approach
